@@ -122,6 +122,14 @@ const HTML = String.raw`<!DOCTYPE html>
       <button class="primary" onclick="showText()">显示</button>
       <button onclick="clearText()">清空</button>
     </div>
+    <hr style="border-color:#30363d; margin:12px 0;" />
+    <label>画面位置 &amp; 样式</label>
+    <div class="grid2" style="margin-top:4px;">
+      <input id="ovX" type="number" min="-9999" max="9999" value="20" placeholder="X 坐标" />
+      <input id="ovY" type="number" min="-9999" max="9999" value="-20" placeholder="Y 坐标" />
+      <input id="ovFont" type="number" min="6" max="256" value="22" placeholder="字体大小" />
+    </div>
+    <button class="warn" style="margin-top:6px;" onclick="updateOverlayConfig()">应用位置 / 样式</button>
   </section>
 
   <section class="card" style="grid-column: 1 / -1;">
@@ -226,6 +234,16 @@ function showText() {
   send({ type: 'cmd', cmd: 'ShowText', msg, duration: dur });
 }
 function clearText() { send({ type: 'cmd', cmd: 'ClearText' }); }
+function updateOverlayConfig() {
+  const x = parseInt($('#ovX').value, 10);
+  const y = parseInt($('#ovY').value, 10);
+  const fs = parseInt($('#ovFont').value, 10);
+  const obj = { type: 'cmd', cmd: 'UpdateOverlayConfig' };
+  if (!isNaN(x)) obj.x = x;
+  if (!isNaN(y)) obj.y = y;
+  if (!isNaN(fs) && fs > 0) obj.fontSize = fs;
+  send(obj);
+}
 function refreshStatus() { send({ type: 'status?' }); }
 
 (async function init() { await loadCfg(); if (cfg.key) connect(); })();

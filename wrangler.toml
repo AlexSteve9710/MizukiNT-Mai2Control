@@ -10,11 +10,7 @@
 #   wss://<worker-host>/admin?key=<KEY>  ← admin 浏览器控制台入口
 #   https://<worker-host>/               ← 控制台 HTML
 
-<<<<<<< HEAD
 name = "mizukint-mai2"
-=======
-name = "sdez-remote-control"
->>>>>>> 6a5c1dc8ddad6e8efe91364b8e1b08fc08372047
 main = "worker.js"
 # 提到一个有 hibernation API 的版本即可（>= 2024-08-15）
 compatibility_date = "2024-12-01"
@@ -35,15 +31,9 @@ name = "CABINETS"
 class_name = "CabinetBroker"
 
 # DO 类需要在 migrations 里声明
-<<<<<<< HEAD
 # 注意：免费 plan 只支持 SQLite-backed DO，必须用 new_sqlite_classes
 # （API 错误码 10097：In order to use Durable Objects with a free plan,
 #   you must create a namespace using a `new_sqlite_classes` migration）
 [[migrations]]
 tag = "v1"
 new_sqlite_classes = ["CabinetBroker"]
-=======
-[[migrations]]
-tag = "v1"
-new_classes = ["CabinetBroker"]
->>>>>>> 6a5c1dc8ddad6e8efe91364b8e1b08fc08372047

@@ -1,0 +1,36 @@
+# Cloudflare Worker 配置 —— SDEZ 远程控制台 (Hibernatable WebSocket)
+# 用法： npx wrangler deploy
+#
+# 架构：Worker + Durable Object，使用 WebSocket Hibernation API 实现「无服务器」WS。
+#   - DO isolate 在没有消息往来时会被驱逐回收，下一条消息进来时再唤起
+#   - 不需要长跑的进程 / 容器，闲置不计费
+#
+# 路由（与 DLL 里 URL_PREFIX 相互配套）：
+#   wss://<worker-host>/token?=<KEY>     ← cabinet 入口（兼容用户偏好的 mai2.../token?= 写法）
+#   wss://<worker-host>/admin?key=<KEY>  ← admin 浏览器控制台入口
+#   https://<worker-host>/               ← 控制台 HTML
+
+name = "sdez-remote-control"
+main = "worker.js"
+# 提到一个有 hibernation API 的版本即可（>= 2024-08-15）
+compatibility_date = "2024-12-01"
+
+# 控制台默认填进去的 cabinet key（admin 浏览器侧的便利项；可留空）
+[vars]
+DEFAULT_CABINET_KEY = ""    # 留空让管理员手填
+ADMIN_TOKEN         = ""    # 控制台/admin 端 token；留空=不鉴权
+CABINET_TOKEN       = ""    # cabinet 端 token；留空=不鉴权（推荐生产填）
+
+# 推荐用 secret 存：
+#   npx wrangler secret put ADMIN_TOKEN
+#   npx wrangler secret put CABINET_TOKEN
+
+# Durable Object：每个 cabinet key 一个实例，承载 cabinet/admin 双向 WebSocket
+[[durable_objects.bindings]]
+name = "CABINETS"
+class_name = "CabinetBroker"
+
+# DO 类需要在 migrations 里声明
+[[migrations]]
+tag = "v1"
+new_classes = ["CabinetBroker"]

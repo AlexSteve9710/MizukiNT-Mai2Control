@@ -346,6 +346,102 @@ const HTML_CONSOLE = String.raw`<!DOCTYPE html>
   </section>
 
   <section class="card" style="grid-column: 1 / -1;">
+    <h2>游戏内提示框</h2>
+    <div class="grid2">
+      <input id="dlgTitle" type="text" maxlength="80"
+        placeholder="标题（WarningWindow 顶部）" />
+      <select id="dlgMonitor" title="0=左屏 / 1=右屏">
+        <option value="0">左屏（Monitor 0）</option>
+        <option value="1">右屏（Monitor 1）</option>
+      </select>
+    </div>
+    <textarea id="dlgMsg" rows="3" style="margin-top:8px;"
+      placeholder="正文（多行 OK，会原样塞进 WarningWindow.message）"></textarea>
+    <div class="row tight" style="margin-top:8px;">
+      <input id="dlgDur" type="number" min="0" step="0.1" value="5"
+        placeholder="停留秒数 (0=常驻)" />
+      <button class="btn-primary" type="button" onclick="showDialog()">显示对话框</button>
+    </div>
+    <p class="hint">
+      直接调游戏内 <code>ProcessManager.EnqueueWarningMessage</code>，与官方维护提示
+      共用同一套窗口管线（带 Prepare/Open/Close 动画）。<code>停留秒数</code> 内部转毫秒；
+      留 <code>0</code> 表示常驻直到 ForceClose。
+    </p>
+  </section>
+
+  <section class="card" style="grid-column: 1 / -1;">
+    <h2>游戏内事件触发 <span class="hint" style="font-weight:normal;font-size:11px;">小型触发逻辑 / 直接刺激现成全局 UI</span></h2>
+
+    <div class="grid2" style="gap:16px;align-items:start;">
+      <!-- 左列：Ban + Error -->
+      <div>
+        <h3 style="margin:0 0 6px 0;font-size:13px;color:#7d8590;text-transform:uppercase;letter-spacing:0.5px;">封禁警告 / 错误模式</h3>
+        <div class="row tight" style="margin-bottom:8px;">
+          <button class="btn-warn" type="button" onclick="showBan()" title="EntryProcess 中弹出 BanExecution 警告窗口（仅 entry 流程中有效）">弹出 Ban 警告</button>
+        </div>
+        <div class="row tight" style="margin-bottom:4px;">
+          <input id="errNo" type="number" value="9999" min="0" max="99999" style="width:100px;" title="AMDaemon 错误号（4 位）" />
+          <button class="btn-danger" type="button" onclick="showError()" title="调 AMDaemon.Error.Set(errorNo) 进入全屏错误模式">触发错误模式</button>
+        </div>
+        <p class="hint" style="margin-top:4px;">
+          Ban 警告仅在 entry / 刷卡确认阶段有效；错误模式立即全屏接管，需要重启或干预才能退出。
+        </p>
+      </div>
+
+      <!-- 右列：ShopEnd -->
+      <div>
+        <h3 style="margin:0 0 6px 0;font-size:13px;color:#7d8590;text-transform:uppercase;letter-spacing:0.5px;">营业结束倒计时</h3>
+        <div class="row tight" style="margin-bottom:8px;">
+          <input id="shopEndMin" type="number" value="30" min="0" max="240" style="width:100px;" title="剩余分钟数。≤60 进入「即将关店」UI；≤15 进入「已关店」UI" />
+          <button class="btn-primary" type="button" onclick="shopEndOn()">ShopEnd ON</button>
+          <button type="button" onclick="shopEndOff()">OFF</button>
+        </div>
+        <p class="hint" style="margin-top:4px;">
+          每帧压制 <code>ClosingTimer._remainingMinutes</code>。闲置时双屏弹通知，
+          游玩时只在对侧 P 位提示。OFF 立刻恢复上游真实剩余分钟。
+        </p>
+      </div>
+    </div>
+
+    <!-- 下方整行：CommonMessage -->
+    <div style="margin-top:14px;padding-top:14px;border-top:1px solid #30363d;">
+      <h3 style="margin:0 0 6px 0;font-size:13px;color:#7d8590;text-transform:uppercase;letter-spacing:0.5px;">DB.CommonMessageID 预定义文字</h3>
+      <div class="grid2">
+        <select id="cmPreset" onchange="onCmPreset()" title="常用 CommonMessageID 速选；选「自定义」则用 ID/Name 字段">
+          <option value="">— 自定义 / 手填 —</option>
+          <option value="67">67 · UnderServerMaintenance（服务器维护中）</option>
+          <option value="68">68 · AimeOffline</option>
+          <option value="195">195 · EntryTimeOutCredit</option>
+          <option value="196">196 · EntryTimeOut</option>
+          <option value="215">215 · CreditInsertCoin</option>
+          <option value="124">124 · ErrorIDTitle</option>
+          <option value="125">125 · ErrorMessageTitle</option>
+          <option value="126">126 · ErrorDateTitle</option>
+        </select>
+        <select id="cmMonitor" title="0=左屏 / 1=右屏">
+          <option value="0">左屏（Monitor 0）</option>
+          <option value="1">右屏（Monitor 1）</option>
+        </select>
+      </div>
+      <div class="grid2" style="margin-top:8px;">
+        <input id="cmId" type="number" min="-1" max="306" placeholder="messageId（int，-1=用 name）" />
+        <input id="cmName" type="text" maxlength="60" placeholder="messageName（EnumName，例如 UnderServerMaintenance）" />
+      </div>
+      <div class="grid2" style="margin-top:8px;">
+        <input id="cmTitle" type="text" maxlength="80" placeholder="title（可选；留空则用 EnumName）" />
+        <input id="cmDur" type="number" min="0" step="0.1" value="5" placeholder="停留秒数 (0=常驻)" />
+      </div>
+      <div class="row tight" style="margin-top:8px;">
+        <button class="btn-primary" type="button" onclick="showCommonMessage()">弹出 CommonMessage</button>
+      </div>
+      <p class="hint" style="margin-top:4px;">
+        从 <code>DB.CommonMessageID</code>（306 项）查表取本地化文本，复用 WarningWindow 渲染。
+        ID 和 Name 二选一；ID 优先，无则按 Name 解析。
+      </p>
+    </div>
+  </section>
+
+  <section class="card" style="grid-column: 1 / -1;">
     <h2>状态 / 日志</h2>
     <pre id="log" class="log"></pre>
   </section>
@@ -611,6 +707,72 @@ function showText() {
   send(obj);
 }
 function clearText() { send({ type: 'cmd', cmd: 'ClearText' }); }
+
+function showDialog() {
+  const title = $('#dlgTitle').value || '';
+  const msg   = $('#dlgMsg').value   || '';
+  const dur   = parseFloat($('#dlgDur').value || '0');
+  const mon   = parseInt($('#dlgMonitor').value, 10);
+  if (!title && !msg) { log('对话框：标题和正文都为空，已忽略', 'err'); return; }
+  send({
+    type: 'cmd', cmd: 'ShowDialog',
+    title, msg,
+    duration: isNaN(dur) ? 0 : dur,
+    monitorId: (mon === 1) ? 1 : 0,
+  });
+}
+
+// =============================================================================
+// 事件触发：ShowBan / ShowError / ShopEnd / ShowCommonMessage
+// =============================================================================
+function showBan() {
+  send({ type: 'cmd', cmd: 'ShowBan' });
+}
+
+function showError() {
+  const n = parseInt($('#errNo').value, 10);
+  const errorNo = isNaN(n) ? 9999 : Math.max(0, n);
+  send({ type: 'cmd', cmd: 'ShowError', errorNo });
+}
+
+function shopEndOn() {
+  const m = parseInt($('#shopEndMin').value, 10);
+  const minutes = isNaN(m) ? 30 : Math.max(0, m);
+  send({ type: 'cmd', cmd: 'ShopEnd', state: 'on', minutes });
+}
+function shopEndOff() {
+  send({ type: 'cmd', cmd: 'ShopEnd', state: 'off' });
+}
+
+// CommonMessage 速选下拉变化时：同步 ID 输入框 + 清空 Name（避免冲突）
+function onCmPreset() {
+  const v = $('#cmPreset').value;
+  if (v === '') return;
+  $('#cmId').value = v;
+  $('#cmName').value = '';
+}
+
+function showCommonMessage() {
+  const idRaw = $('#cmId').value;
+  const name  = ($('#cmName').value || '').trim();
+  const title = $('#cmTitle').value || '';
+  const dur   = parseFloat($('#cmDur').value || '0');
+  const mon   = parseInt($('#cmMonitor').value, 10);
+  const id    = (idRaw === '' || isNaN(parseInt(idRaw, 10))) ? -1 : parseInt(idRaw, 10);
+  if (id < 0 && !name) {
+    log('CommonMessage：messageId 和 messageName 都为空，已忽略', 'err');
+    return;
+  }
+  const obj = {
+    type: 'cmd', cmd: 'ShowCommonMessage',
+    messageId: id,
+    messageName: name,
+    title,
+    duration: isNaN(dur) ? 0 : dur,
+    monitorId: (mon === 1) ? 1 : 0,
+  };
+  send(obj);
+}
 function refreshStatus() { send({ type: 'status?' }); }
 
 // =============================================================================

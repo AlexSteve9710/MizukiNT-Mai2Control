@@ -117,19 +117,21 @@ const HTML = String.raw`<!DOCTYPE html>
   <section class="card" style="grid-column: 1 / -1;">
     <h2>窗口文字</h2>
     <textarea id="textMsg" rows="2" placeholder="文本（支持多行 / Rich Text）"></textarea>
+    <label style="margin-top:8px;">位置（X / Y，留空则用 segatools.ini 默认；负值代表从右/下偏移）</label>
+    <div class="grid2" style="margin-top:4px;">
+      <input id="ovX" type="number" placeholder="X 坐标（可留空）" />
+      <input id="ovY" type="number" placeholder="Y 坐标（可留空）" />
+    </div>
     <div class="row" style="margin-top:6px;">
       <input id="textDur" type="number" min="0" step="0.1" value="3" placeholder="停留秒数 (0=常驻)" />
       <button class="primary" onclick="showText()">显示</button>
       <button onclick="clearText()">清空</button>
     </div>
-    <hr style="border-color:#30363d; margin:12px 0;" />
-    <label>画面位置 &amp; 样式</label>
-    <div class="grid2" style="margin-top:4px;">
-      <input id="ovX" type="number" min="-9999" max="9999" value="20" placeholder="X 坐标" />
-      <input id="ovY" type="number" min="-9999" max="9999" value="-20" placeholder="Y 坐标" />
-      <input id="ovFont" type="number" min="6" max="256" value="22" placeholder="字体大小" />
-    </div>
-    <button class="warn" style="margin-top:6px;" onclick="updateOverlayConfig()">应用位置 / 样式</button>
+    <p style="margin:10px 0 0; font-size:11px; opacity:.6; line-height:1.5;">
+      持久文字请写到 <code>segatools.ini</code> 的 <code>[overlay] enable=1 / text=…</code>，
+      游戏每次启动都会自动渲染。这里发的 ShowText 是「实时活字幕」，
+      duration=0 也只在本次进程内有效。
+    </p>
   </section>
 
   <section class="card" style="grid-column: 1 / -1;">
@@ -231,19 +233,15 @@ function power(cmd) {
 function showText() {
   const msg = $('#textMsg').value;
   const dur = parseFloat($('#textDur').value || '0');
-  send({ type: 'cmd', cmd: 'ShowText', msg, duration: dur });
-}
-function clearText() { send({ type: 'cmd', cmd: 'ClearText' }); }
-function updateOverlayConfig() {
-  const x = parseInt($('#ovX').value, 10);
-  const y = parseInt($('#ovY').value, 10);
-  const fs = parseInt($('#ovFont').value, 10);
-  const obj = { type: 'cmd', cmd: 'UpdateOverlayConfig' };
-  if (!isNaN(x)) obj.x = x;
-  if (!isNaN(y)) obj.y = y;
-  if (!isNaN(fs) && fs > 0) obj.fontSize = fs;
+  const xRaw = $('#ovX').value;
+  const yRaw = $('#ovY').value;
+  const obj = { type: 'cmd', cmd: 'ShowText', msg, duration: dur };
+  // x/y 可选：留空就让 cabinet 用 segatools.ini 默认位置；填了就跟随本条消息走。
+  if (xRaw !== '' && !isNaN(parseInt(xRaw, 10))) obj.x = parseInt(xRaw, 10);
+  if (yRaw !== '' && !isNaN(parseInt(yRaw, 10))) obj.y = parseInt(yRaw, 10);
   send(obj);
 }
+function clearText() { send({ type: 'cmd', cmd: 'ClearText' }); }
 function refreshStatus() { send({ type: 'status?' }); }
 
 (async function init() { await loadCfg(); if (cfg.key) connect(); })();

@@ -18,11 +18,11 @@ compatibility_date = "2024-12-01"
 # 控制台默认填进去的 cabinet key（admin 浏览器侧的便利项；可留空）
 [vars]
 DEFAULT_CABINET_KEY = ""    # 留空让管理员手填
-ADMIN_TOKEN         = ""    # 控制台/admin 端 token；留空=不鉴权
+ADMIN_TOKEN         = ""    # ⚠️ 已废弃 —— 控制台改走「KV 账户 + 登录会话」模型；
+                            #    本字段保留是为了不破坏老的 wrangler.toml diff，运行时不再读取。
 CABINET_TOKEN       = ""    # cabinet 端 token；留空=不鉴权（推荐生产填）
 
 # 推荐用 secret 存：
-#   npx wrangler secret put ADMIN_TOKEN
 #   npx wrangler secret put CABINET_TOKEN
 
 # Durable Object：每个 cabinet key 一个实例，承载 cabinet/admin 双向 WebSocket
@@ -37,3 +37,21 @@ class_name = "CabinetBroker"
 [[migrations]]
 tag = "v1"
 new_sqlite_classes = ["CabinetBroker"]
+
+# ============================================================
+# KV namespace「AUTH」 —— 多账户登录系统的真相之源
+#
+#   user:<username>      → JSON {salt, hash (PBKDF2-SHA256 100k), createdAt, role, cabinets:[…]}
+#   session:<token>      → JSON {username, createdAt}        (TTL 24h, 由 KV 自动清理)
+#   lockout:<ip>         → JSON {fails, lockedUntil}         (TTL 5min, 防穷举)
+#
+# 首次部署步骤：
+#   1) wrangler kv namespace create AUTH                → 拿 production id 填到下面 id=
+#   2) wrangler kv namespace create AUTH --preview      → 拿 preview id 填到 preview_id=
+#   3) node tools/make-user.mjs <user> <pass>           → 跑出来的 wrangler kv key put 命令执行一次
+#   4) wrangler deploy                                  → 上线后访问 / 应该被 302 跳到 /login
+# ============================================================
+[[kv_namespaces]]
+binding     = "AUTH"
+id          = ""           # ← TODO: 填 `wrangler kv namespace create AUTH` 输出的 id
+preview_id  = ""           # ← TODO: 填 `wrangler kv namespace create AUTH --preview` 输出的 id

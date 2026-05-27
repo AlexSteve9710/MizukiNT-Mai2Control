@@ -354,6 +354,21 @@ export class CabinetBroker {
     const url = new URL(request.url);
     const role = url.pathname === '/_cabinet' ? 'cabinet' : 'admin';
 
+    // ★ 稳定性关键：让 Cloudflare 边缘自动应答 cabinet 的心跳 ping。
+    //   cabinet 每 20s 发一条 {"type":"ping"}，边缘**不唤醒 DO** 直接回 {"type":"pong"}。
+    //   作用：(1) 保持 CF 边缘 ~100s 空闲断连阈值之下永不超时；
+    //        (2) 不计 DO CPU 时间，不破坏 hibernation 的零成本特性；
+    //        (3) cabinet 端用 ReadLoop 的 _lastRecvAt 探活，pong 一回来就刷新看门狗。
+    //   `setWebSocketAutoResponse` 是 DO 全局设置，重复调用幂等。
+    try {
+      this.state.setWebSocketAutoResponse(
+        new WebSocketRequestResponsePair(
+          JSON.stringify({ type: 'ping' }),
+          JSON.stringify({ type: 'pong' })
+        )
+      );
+    } catch (e) { /* 极老的 runtime 没这 API；不致命，cabinet 那边 read 仍会触发 wake */ }
+
     const pair = new WebSocketPair();
     const client = pair[0];
     const server = pair[1];
@@ -424,7 +439,7 @@ export class CabinetBroker {
       // cabinet 离线 — 广播给所有 admin
       this.broadcastToAdmins({ type: 'cabinet', online: false });
     }
-    try { ws.close(code, reason); } catch {}
+    // 不再调 ws.close() —— 运行时已经把这个 socket finalize 掉了，再调一次反而可能抛。
   }
 
   async webSocketError(ws /*, error */) {

@@ -71,6 +71,9 @@ const HTML = String.raw`<!DOCTYPE html>
   .pill.green { background: #23863633; color: #56d364; }
   .pill.red   { background: #da363333; color: #f85149; }
   .grid2 { display: grid; gap: 6px; grid-template-columns: 1fr 1fr; }
+  .grid3 { display: grid; gap: 6px; grid-template-columns: 1fr 1fr 1fr; }
+  .grid4 { display: grid; gap: 6px; grid-template-columns: auto 1fr 1fr 1fr; align-items: center; }
+  .grid4 input[type="color"] { padding: 2px; height: 34px; cursor: pointer; }
 </style>
 </head>
 <body>
@@ -122,6 +125,13 @@ const HTML = String.raw`<!DOCTYPE html>
       <input id="ovX" type="number" placeholder="X 坐标（可留空）" />
       <input id="ovY" type="number" placeholder="Y 坐标（可留空）" />
     </div>
+    <label style="margin-top:8px;">颜色（RGB 0–255，留空则用 segatools.ini 默认）</label>
+    <div class="grid4" style="margin-top:4px;">
+      <input id="ovColor" type="color" value="#ffffff" title="拖动调色板会自动填充右侧 R/G/B" />
+      <input id="ovR" type="number" min="0" max="255" placeholder="R" />
+      <input id="ovG" type="number" min="0" max="255" placeholder="G" />
+      <input id="ovB" type="number" min="0" max="255" placeholder="B" />
+    </div>
     <div class="row" style="margin-top:6px;">
       <input id="textDur" type="number" min="0" step="0.1" value="3" placeholder="停留秒数 (0=常驻)" />
       <button class="primary" onclick="showText()">显示</button>
@@ -130,7 +140,7 @@ const HTML = String.raw`<!DOCTYPE html>
     <p style="margin:10px 0 0; font-size:11px; opacity:.6; line-height:1.5;">
       持久文字请写到 <code>segatools.ini</code> 的 <code>[overlay] enable=1 / text=…</code>，
       游戏每次启动都会自动渲染。这里发的 ShowText 是「实时活字幕」，
-      duration=0 也只在本次进程内有效。
+      duration=0 也只在本次进程内有效；新一条 ShowText 会自动替换上一条（不再叠加）。
     </p>
   </section>
 
@@ -239,10 +249,43 @@ function showText() {
   // x/y 可选：留空就让 cabinet 用 segatools.ini 默认位置；填了就跟随本条消息走。
   if (xRaw !== '' && !isNaN(parseInt(xRaw, 10))) obj.x = parseInt(xRaw, 10);
   if (yRaw !== '' && !isNaN(parseInt(yRaw, 10))) obj.y = parseInt(yRaw, 10);
+  // r/g/b 同理：任一字段填了就视为「带颜色」，cabinet 那边 HasColor=true 会覆盖默认色。
+  // 三个分量留空才完全走 segatools.ini [overlay] r/g/b。
+  const ri = parseInt($('#ovR').value, 10);
+  const gi = parseInt($('#ovG').value, 10);
+  const bi = parseInt($('#ovB').value, 10);
+  if (!isNaN(ri)) obj.r = Math.max(0, Math.min(255, ri));
+  if (!isNaN(gi)) obj.g = Math.max(0, Math.min(255, gi));
+  if (!isNaN(bi)) obj.b = Math.max(0, Math.min(255, bi));
   send(obj);
 }
 function clearText() { send({ type: 'cmd', cmd: 'ClearText' }); }
 function refreshStatus() { send({ type: 'status?' }); }
+
+// 拾色器 ↔ R/G/B 三个 number input 双向同步
+// 用户拖调色板就把数值填进去；手动改 R/G/B 也回写调色板，方便预览
+function syncColorFromPicker() {
+  const hex = $('#ovColor').value || '#ffffff';
+  const r = parseInt(hex.slice(1, 3), 16);
+  const g = parseInt(hex.slice(3, 5), 16);
+  const b = parseInt(hex.slice(5, 7), 16);
+  $('#ovR').value = r;
+  $('#ovG').value = g;
+  $('#ovB').value = b;
+}
+function syncColorFromRgb() {
+  const r = parseInt($('#ovR').value, 10);
+  const g = parseInt($('#ovG').value, 10);
+  const b = parseInt($('#ovB').value, 10);
+  if (isNaN(r) && isNaN(g) && isNaN(b)) return; // 全空就别覆盖调色板
+  const clamp = v => Math.max(0, Math.min(255, isNaN(v) ? 255 : v));
+  const toHex = v => clamp(v).toString(16).padStart(2, '0');
+  $('#ovColor').value = '#' + toHex(r) + toHex(g) + toHex(b);
+}
+document.addEventListener('DOMContentLoaded', () => {
+  $('#ovColor').addEventListener('input', syncColorFromPicker);
+  ['ovR', 'ovG', 'ovB'].forEach(id => $('#' + id).addEventListener('input', syncColorFromRgb));
+});
 
 (async function init() { await loadCfg(); if (cfg.key) connect(); })();
 </script>

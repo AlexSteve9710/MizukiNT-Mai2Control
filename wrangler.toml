@@ -53,5 +53,5 @@ new_sqlite_classes = ["CabinetBroker"]
 # ============================================================
 [[kv_namespaces]]
 binding     = "AUTH"
-id          = ""           # ← TODO: 填 `wrangler kv namespace create AUTH` 输出的 id
-preview_id  = ""           # ← TODO: 填 `wrangler kv namespace create AUTH --preview` 输出的 id
+id          = "c189c8111fb74b77b8f50275baa11e30"           # ← TODO: 填 `wrangler kv namespace create AUTH` 输出的 id
+preview_id  = "c189c8111fb74b77b8f50275baa11e30"           # ← TODO: 填 `wrangler kv namespace create AUTH --preview` 输出的 id

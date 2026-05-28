@@ -114,8 +114,13 @@ form.addEventListener('submit', async (e) => {
   clearErr();
   btn.disabled = true; btn.textContent = '登 录 中…';
   try {
+    // credentials: 'same-origin' 必须显式声明 ——
+    // 桌面浏览器默认就是这个值，但移动端 WebView（微信 / QQ / 抖音内置浏览器、
+    // 一些安卓厂商定制 WebView、老 iOS Safari）的 fetch 默认是 'omit'，
+    // 会导致响应里的 Set-Cookie 被静默丢弃，登录后跳回登录页死循环。
     const r = await fetch('/api/login', {
       method: 'POST',
+      credentials: 'same-origin',
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify({
         username: document.getElementById('u').value.trim(),
@@ -123,6 +128,16 @@ form.addEventListener('submit', async (e) => {
       }),
     });
     if (r.ok) {
+      // 事后验证：再调一次 /api/whoami 确认 cookie 真的写进去了。
+      // 如果 WebView 仍然吞 cookie（极少数情况），whoami 会 401，
+      // 这时给用户一个明确的错误，而不是默默 location.replace 进死循环。
+      try {
+        const w = await fetch('/api/whoami', { credentials: 'same-origin' });
+        if (w.status === 401) {
+          showErr('登录成功但浏览器没接受会话 cookie。请改用系统浏览器（Safari / Chrome）打开此页面，或检查浏览器是否禁用了第三方 cookie。');
+          return;
+        }
+      } catch (_) { /* 网络问题 → 直接跳，让浏览器自己再试 */ }
       // 登录成功 → 跳回控制台。replace 避免「后退」回到登录页又自动跳一次。
       const next = new URLSearchParams(location.search).get('next') || '/';
       location.replace(next);

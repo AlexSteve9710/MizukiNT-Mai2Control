@@ -120,7 +120,7 @@ const HTML_LOGIN = String.raw`<!DOCTYPE html>
       autocomplete="current-password" required />
     <button type="submit" class="btn" id="submit">登 录</button>
     <div class="err" id="err"></div>
-    <div class="foot">© SDEZ Remote Control · KV-backed Auth</div>
+    <div class="foot">© MikuNet & MizukiNet</div>
   </form>
 <script>
 const form = document.getElementById('loginForm');
@@ -131,7 +131,7 @@ function clearErr() { errEl.classList.remove('show'); }
 form.addEventListener('submit', async (e) => {
   e.preventDefault();
   clearErr();
-  btn.disabled = true; btn.textContent = '登 录 中…';
+  btn.disabled = true; btn.textContent = '登录中…';
   try {
     // credentials: 'same-origin' 必须显式声明 ——
     // 桌面浏览器默认就是这个值，但移动端 WebView（微信 / QQ / 抖音内置浏览器、

@@ -53,7 +53,7 @@ const HTML_LOGIN = String.raw`<!DOCTYPE html>
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-<title>登录 · SDEZ 远程控制</title>
+<title>登录·机台控制</title>
 <style>
   :root { color-scheme: dark; }
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -109,7 +109,7 @@ const HTML_LOGIN = String.raw`<!DOCTYPE html>
 <body>
   <form class="login-card" id="loginForm" autocomplete="on">
     <div class="brand">
-      <h1>SDEZ 远程控制台</h1>
+      <h1>远程控制台</h1>
       <p>请使用管理员账号登录</p>
     </div>
     <label for="u">用户名</label>
@@ -118,9 +118,9 @@ const HTML_LOGIN = String.raw`<!DOCTYPE html>
     <label for="p">密码</label>
     <input id="p" name="password" type="password"
       autocomplete="current-password" required />
-    <button type="submit" class="btn" id="submit">登 录</button>
+    <button type="submit" class="btn" id="submit">登录</button>
     <div class="err" id="err"></div>
-    <div class="foot">© MikuNet & MizukiNet</div>
+    <div class="foot">© MikuNet2026 & MizukiNT</div>
   </form>
 <script>
 const form = document.getElementById('loginForm');
@@ -169,7 +169,7 @@ form.addEventListener('submit', async (e) => {
   } catch (err) {
     showErr('网络错误: ' + err.message);
   } finally {
-    btn.disabled = false; btn.textContent = '登 录';
+    btn.disabled = false; btn.textContent = '登录';
   }
 });
 </script>
@@ -182,7 +182,7 @@ const HTML_CONSOLE = String.raw`<!DOCTYPE html>
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-<title>SDEZ 远程控制</title>
+<title>远程控制</title>
 <style>
   :root { color-scheme: dark; }
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }

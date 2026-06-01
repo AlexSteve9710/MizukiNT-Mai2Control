@@ -514,18 +514,15 @@ const HTML_CONSOLE = String.raw`<!DOCTYPE html>
     <h2>游戏内事件触发 <span class="hint" style="font-weight:normal;font-size:11px;">小型触发逻辑 / 直接刺激现成全局 UI</span></h2>
 
     <div class="grid2" style="gap:16px;align-items:start;">
-      <!-- 左列：Ban + Error -->
+      <!-- 左列：Error -->
       <div>
-        <h3 style="margin:0 0 6px 0;font-size:13px;color:#7d8590;text-transform:uppercase;letter-spacing:0.5px;">封禁警告 / 错误模式</h3>
-        <div class="row tight" style="margin-bottom:8px;">
-          <button class="btn-warn" type="button" onclick="showBan()" title="EntryProcess 中弹出 BanExecution 警告窗口（仅 entry 流程中有效）">弹出 Ban 警告</button>
-        </div>
+        <h3 style="margin:0 0 6px 0;font-size:13px;color:#7d8590;text-transform:uppercase;letter-spacing:0.5px;">错误模式</h3>
         <div class="row tight" style="margin-bottom:4px;">
           <input id="errNo" type="number" value="9999" min="0" max="99999" style="width:100px;" title="AMDaemon 错误号（4 位）" />
           <button class="btn-danger" type="button" onclick="showError()" title="调 AMDaemon.Error.Set(errorNo) 进入全屏错误模式">触发错误模式</button>
         </div>
         <p class="hint" style="margin-top:4px;">
-          Ban 警告仅在 entry / 刷卡确认阶段有效；错误模式立即全屏接管，需要重启或干预才能退出。
+          错误模式立即全屏接管，需要重启或干预才能退出。
         </p>
       </div>
 
@@ -864,12 +861,8 @@ function showDialog() {
 }
 
 // =============================================================================
-// 事件触发：ShowBan / ShowError / ShopEnd / ShowCommonMessage
+// 事件触发：ShowError / ShopEnd / ShowCommonMessage
 // =============================================================================
-function showBan() {
-  send({ type: 'cmd', cmd: 'ShowBan' });
-}
-
 function showError() {
   const n = parseInt($('#errNo').value, 10);
   const errorNo = isNaN(n) ? 9999 : Math.max(0, n);

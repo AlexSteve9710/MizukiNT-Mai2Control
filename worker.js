@@ -1070,7 +1070,7 @@ function doConnect() {
   };
   s.onerror = () => log('ws error', 'err');
   s.onmessage = (ev) => {
-    if (ev.data === '{"type":"pong"}') return;   // 心跳 pong 不刷屏
+    if (ev.data === '{"type":"pong"}') return;
     log(ev.data, 'rx');
     try {
       const m = JSON.parse(ev.data);

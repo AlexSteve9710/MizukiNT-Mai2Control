@@ -758,27 +758,22 @@ pre.log{
       <input id="coinCount" type="number" min="1" max="99" value="1" />
       <button class="btn-primary" type="button" onclick="insertCoin()">投币</button>
     </div>
-    <div class="grid2" style="margin-top:8px;">
-      <button type="button" onclick="insertCoinN(1)">+1</button>
-      <button type="button" onclick="insertCoinN(2)">+2</button>
-      <button type="button" onclick="insertCoinN(5)">+5</button>
-      <button type="button" onclick="insertCoinN(10)">+10</button>
-    </div>
   </section>
 
   <section class="card">
     <h2>电源</h2>
     <button type="button" class="btn-warn" onclick="power('GotoTest')"
-      style="margin-bottom:6px;">进入测试模式</button>
+      style="margin-bottom:3px;">关闭主线程</button>
     <button type="button" class="btn-warn" onclick="power('Reboot')"
-      style="margin-bottom:6px;">重启</button>
-    <button type="button" class="btn-danger" onclick="power('PowerOff')">关机/退出</button>
+      style="margin-bottom:3px;">重启</button>
+    <button type="button" class="btn-danger" onclick="power('PowerOff')
+      style="margin-bottom:3px;">关机</button>
   </section>
 
   <section class="card" style="grid-column: 1 / -1;">
     <h2>窗口文字</h2>
     <textarea id="textMsg" rows="2"
-      placeholder="文本（支持多行 / Rich Text）"></textarea>
+      placeholder="文本"></textarea>
     <label class="muted" style="margin-top:8px;">位置（X / Y，留空 = segatools.ini 默认；负值从右/下偏移）</label>
     <div class="grid2" style="margin-top:4px;">
       <input id="ovX" type="number" placeholder="X 坐标（可留空）" />

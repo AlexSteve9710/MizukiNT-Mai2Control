@@ -1088,7 +1088,7 @@ function doConnect() {
       const m = JSON.parse(ev.data);
       if (m.type === 'cabinet') {
         cabinetOnline = !!m.online;
-        setConn(cabinetOnline ? '在线 (cabinet ON)' : '已连接 (cabinet OFF)',
+        setConn(cabinetOnline ? '在线(Cabinet-ON)' : '离线(Cabinet-OFF)',
           cabinetOnline ? 'green' : 'red');
       }
     } catch (e) {}

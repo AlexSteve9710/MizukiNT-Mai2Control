@@ -53,7 +53,7 @@ const HTML_LOGIN = String.raw`<!DOCTYPE html>
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-<title>登录·机台控制</title>
+<title>Login</title>
 <style>
   :root {
   color-scheme: dark;
@@ -324,7 +324,7 @@ const HTML_CONSOLE = String.raw`<!DOCTYPE html>
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-<title>远程控制</title>
+<title>Mai2RemoteControl</title>
 <style>
   :root { color-scheme: dark; }
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -738,10 +738,10 @@ pre.log{
   <section class="card">
     <h2>连接</h2>
 
-    <label class="muted">已保存的机台</label>
+    <label class="muted">机台</label>
     <div class="saved-row">
       <select id="savedKey">
-        <option value="">选择已保存的机台</option>
+        <option value="">选择机台</option>
       </select>
       <button type="button" onclick="saveCurrent()" title="将Key保存到账户">+ 保存</button>
       <button type="button" class="btn-danger" onclick="deleteSaved()" title="删除选中项">删除</button>
@@ -760,7 +760,7 @@ pre.log{
     <h2>投币</h2>
     <div class="row tight">
       <input id="coinCount" type="number" min="1" max="99" value="1" />
-      <button class="btn-primary" type="button" onclick="insertCoin()">投 币</button>
+      <button class="btn-primary" type="button" onclick="insertCoin()">投币</button>
     </div>
     <div class="grid2" style="margin-top:8px;">
       <button type="button" onclick="insertCoinN(1)">+1</button>
@@ -776,7 +776,7 @@ pre.log{
       style="margin-bottom:6px;">进入测试模式</button>
     <button type="button" class="btn-warn" onclick="power('Reboot')"
       style="margin-bottom:6px;">重启</button>
-    <button type="button" class="btn-danger" onclick="power('PowerOff')">关机 / 退出</button>
+    <button type="button" class="btn-danger" onclick="power('PowerOff')">关机/退出</button>
   </section>
 
   <section class="card" style="grid-column: 1 / -1;">
@@ -796,7 +796,7 @@ pre.log{
       <input id="ovB" type="number" min="0" max="255" placeholder="B" />
     </div>
     <div class="row tight" style="margin-top:8px;">
-      <input id="textDur" type="number" min="0" step="0.1" value="3" placeholder="停留秒数 (0=常驻)" />
+      <input id="textDur" type="number" min="0" step="0.1" value="0" placeholder="默认为0" />
       <button class="btn-primary" type="button" onclick="showText()">显示</button>
       <button type="button" onclick="clearText()">清空</button>
     </div>
@@ -807,7 +807,7 @@ pre.log{
     <div class="grid2">
       <input id="dlgTitle" type="text" maxlength="80"
         placeholder="标题（WarningWindow 顶部）" />
-      <select id="dlgMonitor" title="0=左屏 / 1=右屏">
+      <select id="dlgMonitor" title="0=左屏 | 1=右屏">
         <option value="0">左屏（Monitor 0）</option>
         <option value="1">右屏（Monitor 1）</option>
       </select>
@@ -815,8 +815,8 @@ pre.log{
     <textarea id="dlgMsg" rows="0" style="margin-top:8px;"
       placeholder="正文部分"></textarea>
     <div class="row tight" style="margin-top:8px;">
-      <input id="dlgDur" type="number" min="0" step="0.1" value="5"
-        placeholder="停留秒数;0=Always" />
+      <input id="dlgDur" type="number" min="0" step="0.1" value="0"
+        placeholder="默认为0" />
       <button class="btn-primary" type="button" onclick="showDialog()">显示对话框</button>
     </div>
   </section>
@@ -839,8 +839,8 @@ pre.log{
         <h3 style="margin:0 0 6px 0;font-size:13px;color:#7d8590;text-transform:uppercase;letter-spacing:0.5px;">营业结束倒计时</h3>
         <div class="row tight" style="margin-bottom:8px;">
           <input id="shopEndMin" type="number" value="30" min="0" max="240" style="width:100px;" title="≤60 进入「即将关店」；≤15 进入「已关店」" />
-          <button class="btn-primary" type="button" onclick="shopEndOn()">ShopEnd ON</button>
-          <button type="button" onclick="shopEndOff()">OFF</button>
+          <button class="btn-primary" type="button" onclick="shopEndOn()">开闭店</button>
+          <button type="button" onclick="shopEndOff()">关闭店</button>
         </div>
       </div>
     </div>
@@ -850,19 +850,19 @@ pre.log{
       <h3 style="margin:0 0 6px 0;font-size:13px;color:#7d8590;text-transform:uppercase;letter-spacing:0.5px;">预定义文字</h3>
       <div class="grid2">
         <select id="cmPreset" onchange="onCmPreset()" title="常用 CommonMessageID 速选；选「自定义」则用 ID/Name 字段">
-          <option value="">— 自定义 / 手填 —</option>
-          <option value="67">67 · UnderServerMaintenance（服务器维护中）</option>
-          <option value="68">68 · AimeOffline</option>
-          <option value="195">195 · EntryTimeOutCredit</option>
-          <option value="196">196 · EntryTimeOut</option>
-          <option value="215">215 · CreditInsertCoin</option>
-          <option value="124">124 · ErrorIDTitle</option>
-          <option value="125">125 · ErrorMessageTitle</option>
-          <option value="126">126 · ErrorDateTitle</option>
+          <option value="">— 自定义/手填 —</option>
+          <option value="67">67:UnderServerMaintenance（服务器维护中）</option>
+          <option value="68">68:AimeOffline</option>
+          <option value="195">195:EntryTimeOutCredit</option>
+          <option value="196">196:EntryTimeOut</option>
+          <option value="215">215:CreditInsertCoin</option>
+          <option value="124">124:ErrorIDTitle</option>
+          <option value="125">125:ErrorMessageTitle</option>
+          <option value="126">126:ErrorDateTitle</option>
         </select>
-        <select id="cmMonitor" title="0=左屏 / 1=右屏">
-          <option value="0">左屏（Monitor 0）</option>
-          <option value="1">右屏（Monitor 1）</option>
+        <select id="cmMonitor" title="0=左屏 | 1=右屏">
+          <option value="0">左屏</option>
+          <option value="1">右屏</option>
         </select>
       </div>
       <div class="grid2" style="margin-top:8px;">
@@ -870,15 +870,15 @@ pre.log{
         <input id="cmName" type="text" maxlength="60" placeholder="messageName（EnumName，例如 UnderServerMaintenance）" />
       </div>
       <div class="grid2" style="margin-top:8px;">
-        <input id="cmTitle" type="text" maxlength="80" placeholder="title（可选；留空则用 EnumName）" />
-        <input id="cmDur" type="number" min="0" step="0.1" value="5" placeholder="停留秒数 (0=常驻)" />
+        <input id="cmTitle" type="text" maxlength="80" placeholder="title（可选；留空为默认）" />
+        <input id="cmDur" type="number" min="0" step="0.1" value="0" placeholder="默认0" />
       </div>
       <div class="row tight" style="margin-top:8px;">
         <button class="btn-primary" type="button" onclick="showCommonMessage()">弹出 CommonMessage</button>
       </div>
       <p class="hint" style="margin-top:4px;">
         从 <code>DB.CommonMessageID</code>（306 项）查表取本地化文本，复用 WarningWindow 渲染。
-        ID 和 Name 二选一；ID 优先，无则按 Name 解析。
+        ID和Name 二选一;ID 优先，无则按Name解析。
       </p>
     </div>
   </section>

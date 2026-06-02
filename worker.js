@@ -822,7 +822,7 @@ pre.log{
   </section>
 
   <section class="card" style="grid-column: 1 / -1;">
-    <h2>游戏内事件触发</h2>
+    <h2>游戏事件触发</h2>
 
     <div class="grid2" style="gap:16px;align-items:start;">
       <!-- 左列：Error -->
@@ -830,7 +830,7 @@ pre.log{
         <h3 style="margin:0 0 6px 0;font-size:13px;color:#7d8590;text-transform:uppercase;letter-spacing:0.5px;">错误模式</h3>
         <div class="row tight" style="margin-bottom:4px;">
           <input id="errNo" type="number" value="9999" min="0" max="99999" style="width:100px;" title="AMDaemon 错误号（4 位）" />
-          <button class="btn-danger" type="button" onclick="showError()" title="调 AMDaemon.Error.Set(errorNo) 进入全屏错误模式">触发错误模式</button>
+          <button class="btn-danger" type="button" onclick="showError()" title="调 AMDaemon.Error.Set(errorNo) 进入全屏错误模式">ErrMode</button>
         </div>
       </div>
 
@@ -850,8 +850,8 @@ pre.log{
       <h3 style="margin:0 0 6px 0;font-size:13px;color:#7d8590;text-transform:uppercase;letter-spacing:0.5px;">预定义文字</h3>
       <div class="grid2">
         <select id="cmPreset" onchange="onCmPreset()" title="常用 CommonMessageID 速选；选「自定义」则用 ID/Name 字段">
-          <option value="">— 自定义/手填 —</option>
-          <option value="67">67:UnderServerMaintenance（服务器维护中）</option>
+          <option value="">自定义</option>
+          <option value="67">67:UnderServerMaintenance</option>
           <option value="68">68:AimeOffline</option>
           <option value="195">195:EntryTimeOutCredit</option>
           <option value="196">196:EntryTimeOut</option>
@@ -866,8 +866,8 @@ pre.log{
         </select>
       </div>
       <div class="grid2" style="margin-top:8px;">
-        <input id="cmId" type="number" min="-1" max="306" placeholder="messageId（int，-1=用 name）" />
-        <input id="cmName" type="text" maxlength="60" placeholder="messageName（EnumName，例如 UnderServerMaintenance）" />
+        <input id="cmId" type="number" min="-1" max="306" placeholder="messageId" />
+        <input id="cmName" type="text" maxlength="60" placeholder="messageName" />
       </div>
       <div class="grid2" style="margin-top:8px;">
         <input id="cmTitle" type="text" maxlength="80" placeholder="title（可选；留空为默认）" />
@@ -876,10 +876,6 @@ pre.log{
       <div class="row tight" style="margin-top:8px;">
         <button class="btn-primary" type="button" onclick="showCommonMessage()">弹出 CommonMessage</button>
       </div>
-      <p class="hint" style="margin-top:4px;">
-        从 <code>DB.CommonMessageID</code>（306 项）查表取本地化文本，复用 WarningWindow 渲染。
-        ID和Name 二选一;ID 优先，无则按Name解析。
-      </p>
     </div>
   </section>
 

@@ -806,8 +806,8 @@ pre.log{
     <textarea id="dlgMsg" rows="0" style="margin-top:8px;"
       placeholder="正文部分"></textarea>
     <div class="row tight" style="margin-top:8px;">
-      <input id="dlgDur" type="number" min="0" step="0.1" value="0"
-        placeholder="默认为0" />
+      <input id="dlgDur" type="number" min="0" step="0.1" value="5"
+        placeholder="默认5秒" />
       <button class="btn-primary" type="button" onclick="showDialog()">显示对话框</button>
     </div>
   </section>
@@ -842,14 +842,14 @@ pre.log{
       <div class="grid2">
         <select id="cmPreset" onchange="onCmPreset()" title="常用 CommonMessageID 速选；选「自定义」则用 ID/Name 字段">
           <option value="">自定义</option>
-          <option value="67">67:UnderServerMaintenance</option>
-          <option value="68">68:AimeOffline</option>
-          <option value="195">195:EntryTimeOutCredit</option>
-          <option value="196">196:EntryTimeOut</option>
-          <option value="215">215:CreditInsertCoin</option>
-          <option value="124">124:ErrorIDTitle</option>
-          <option value="125">125:ErrorMessageTitle</option>
-          <option value="126">126:ErrorDateTitle</option>
+          <option value="67">UnderServerMaintenance</option>
+          <option value="68">AimeOffline</option>
+          <option value="195">EntryTimeOutCredit</option>
+          <option value="196">EntryTimeOut</option>
+          <option value="215">CreditInsertCoin</option>
+          <option value="124">ErrorIDTitle</option>
+          <option value="125">ErrorMessageTitle</option>
+          <option value="126">ErrorDateTitle</option>
         </select>
         <select id="cmMonitor" title="0=左屏 | 1=右屏">
           <option value="0">左屏</option>
@@ -862,16 +862,16 @@ pre.log{
       </div>
       <div class="grid2" style="margin-top:8px;">
         <input id="cmTitle" type="text" maxlength="80" placeholder="title（可选；留空为默认）" />
-        <input id="cmDur" type="number" min="0" step="0.1" value="0" placeholder="默认0" />
+        <input id="cmDur" type="number" min="0" step="0.1" value="5" placeholder="默认5秒" />
       </div>
       <div class="row tight" style="margin-top:8px;">
-        <button class="btn-primary" type="button" onclick="showCommonMessage()">弹出 CommonMessage</button>
+        <button class="btn-primary" type="button" onclick="showCommonMessage()">发送信息</button>
       </div>
     </div>
   </section>
 
   <section class="card" style="grid-column: 1 / -1;">
-    <h2>状态 / 日志</h2>
+    <h2>日志</h2>
     <pre id="log" class="log"></pre>
   </section>
 

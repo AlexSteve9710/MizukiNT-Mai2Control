@@ -252,7 +252,7 @@ input:focus{
   <form class="login-card" id="loginForm" autocomplete="on">
     <div class="brand">
       <h1>远程控制台</h1>
-      <p>请使用管理员账号登录</p>
+      <p>使用管理员账号登录</p>
     </div>
     <label for="u">用户名</label>
     <input id="u" name="username" autocomplete="username" autofocus required
@@ -275,10 +275,6 @@ form.addEventListener('submit', async (e) => {
   clearErr();
   btn.disabled = true; btn.textContent = '登录中…';
   try {
-    // credentials: 'same-origin' 必须显式声明 ——
-    // 桌面浏览器默认就是这个值，但移动端 WebView（微信 / QQ / 抖音内置浏览器、
-    // 一些安卓厂商定制 WebView、老 iOS Safari）的 fetch 默认是 'omit'，
-    // 会导致响应里的 Set-Cookie 被静默丢弃，登录后跳回登录页死循环。
     const r = await fetch('/api/login', {
       method: 'POST',
       credentials: 'same-origin',
@@ -324,7 +320,7 @@ const HTML_CONSOLE = String.raw`<!DOCTYPE html>
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-<title>Mai2RemoteControl</title>
+<title>Mai2Control</title>
 <style>
   :root { color-scheme: dark; }
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -720,7 +716,7 @@ pre.log{
     <svg width="18" height="18" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
       <path d="M3.5 1.75v11.5c0 .138.112.25.25.25H8a.75.75 0 0 1 0 1.5H3.75A1.75 1.75 0 0 1 2 13.25V1.75C2 .784 2.784 0 3.75 0h6.586c.464 0 .909.184 1.237.513l2.914 2.914c.329.328.513.773.513 1.237V8a.75.75 0 0 1-1.5 0V5h-3.25A1.75 1.75 0 0 1 8.5 3.25V1.5h-4.75a.25.25 0 0 0-.25.25Zm6.75-.058v1.558c0 .138.112.25.25.25h1.558a.25.25 0 0 0-.073-.176L10.426 1.75a.25.25 0 0 0-.176-.073Zm5.024 9.073-3.5 3.5a.751.751 0 0 1-1.042-1.042l2.22-2.22-3.97-.001a.75.75 0 0 1 0-1.5h3.97L10.732 7.28a.751.751 0 0 1 1.042-1.042l3.5 3.5a.75.75 0 0 1 0 1.027Z"/>
     </svg>
-    SDEZ 远程控制台
+    Mai2Control
   </h1>
   <span class="spacer"></span>
   <span class="pill gray" id="conn">未连接</span>

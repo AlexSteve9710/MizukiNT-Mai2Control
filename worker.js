@@ -1098,10 +1098,10 @@ function doConnect() {
 function scheduleReconnect() {
   if (wsManualClose) return;
   let remaining = Math.round(reconnectDelay / 1000);
-  setConn('重连中… (' + remaining + 's)', 'amber');
+  setConn('重连中...(' + remaining + 's)', 'amber');
   countdownTimer = setInterval(() => {
     remaining -= 1;
-    if (remaining > 0) setConn('重连中… (' + remaining + 's)', 'amber');
+    if (remaining > 0) setConn('重连中...(' + remaining + 's)', 'amber');
   }, 1000);
   reconnectTimer = setTimeout(() => {
     reconnectDelay = nextDelay(reconnectDelay);

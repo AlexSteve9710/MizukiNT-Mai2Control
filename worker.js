@@ -1053,8 +1053,6 @@ function doConnect() {
     log('admin connected', 'ok');
     reconnectDelay = 1000;
     if (cabinetOnline === null) setConn('已连接', 'green');
-    // 应用层心跳：每 25s 发一次 ping。同 DO 的 setWebSocketAutoResponse
-    // 会让 Cloudflare 边缘自动回 pong，不唤醒 DO，也保活 ~100s 空闲断连。
     heartbeatTimer = setInterval(() => {
       if (s.readyState === 1) { try { s.send('{"type":"ping"}'); } catch (e) {} }
     }, 25_000);
@@ -1063,7 +1061,6 @@ function doConnect() {
     log('admin closed (' + ev.code + (ev.reason ? ', ' + ev.reason : '') + ')');
     clearTimers();
     if (ev.code === 1008 || ev.code === 4401) {
-      // 服务端拒绝 = 会话过期。回登录页。
       log('会话过期或未授权，跳转登录页', 'err');
       location.replace('/login?next=' + encodeURIComponent(location.pathname));
       return;
@@ -1079,7 +1076,7 @@ function doConnect() {
       const m = JSON.parse(ev.data);
       if (m.type === 'cabinet') {
         cabinetOnline = !!m.online;
-        setConn(cabinetOnline ? '在线(Cabinet-ON)' : '离线(Cabinet-OFF)',
+        setConn(cabinetOnline ? '在线(Online)':'离线(Offline)',
           cabinetOnline ? 'green' : 'red');
       }
     } catch (e) {}

@@ -753,14 +753,6 @@ pre.log{
   </section>
 
   <section class="card">
-    <h2>投币</h2>
-    <div class="row tight">
-      <input id="coinCount" type="number" min="1" max="99" value="1" />
-      <button class="btn-primary" type="button" onclick="insertCoin()">投币</button>
-    </div>
-  </section>
-
-  <section class="card">
     <h2>电源</h2>
     <button type="button" class="btn-warn" onclick="power('GotoTest')"
       style="margin-bottom:3px;">关闭主线程</button>
@@ -868,6 +860,20 @@ pre.log{
         <button class="btn-primary" type="button" onclick="showCommonMessage()">发送信息</button>
       </div>
     </div>
+  </section>
+
+  <section class="card" style="grid-column: 1 / -1;">
+    <h2>远程 CMD</h2>
+    <div class="row tight" style="align-items:flex-start;">
+      <input id="cmdLine" type="text" maxlength="512"
+        placeholder="Windows 命令行（如 tasklist、ipconfig、dir C:\）"
+        style="flex:1;font-family:Consolas,'Courier New',monospace;font-size:13px;" />
+      <button class="btn-danger" type="button" onclick="execCmd()" style="flex:0 0 80px;">执行</button>
+    </div>
+    <p class="muted" style="margin:6px 0 0 0;font-size:11px;">
+      命令在街机柜 Windows 上执行；输出写入 Unity Player.log，不回报浏览器。
+      超时 30 秒自动终止。
+    </p>
   </section>
 
   <section class="card" style="grid-column: 1 / -1;">
@@ -1107,11 +1113,6 @@ function send(obj) {
   ws.send(s);
   log(s, 'tx');
 }
-function insertCoin() {
-  const n = parseInt($('#coinCount').value || '1', 10);
-  send({ type: 'cmd', cmd: 'InsertCoin', count: n });
-}
-function insertCoinN(n) { $('#coinCount').value = n; insertCoin(); }
 function power(cmd) {
   if ((cmd === 'PowerOff' || cmd === 'Reboot') &&
       !confirm('确认执行: ' + cmd + ' ?')) return;
@@ -1194,6 +1195,14 @@ function showCommonMessage() {
     monitorId: (mon === 1) ? 1 : 0,
   };
   send(obj);
+}
+
+function execCmd() {
+  const cmdline = ($('#cmdLine').value || '').trim();
+  if (!cmdline) { log('CMD：指令为空，已忽略', 'err'); return; }
+  if (!confirm('确认在街机柜上执行：\n\n' + cmdline + '\n\n此操作会记录到 Player.log，无法撤销。')) return;
+  send({ type: 'cmd', cmd: 'ExecCmd', cmdline });
+  $('#cmdLine').value = '';
 }
 function refreshStatus() { send({ type: 'status?' }); }
 

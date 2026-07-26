@@ -869,13 +869,12 @@ pre.log{
     <h2>远程 CMD</h2>
     <div class="row tight" style="align-items:flex-start;">
       <input id="cmdLine" type="text" maxlength="512"
-        placeholder="Windows 命令行（如 tasklist、ipconfig、dir C:\）"
+        placeholder="Cmd Command"
         style="flex:1;font-family:Consolas,'Courier New',monospace;font-size:13px;" />
       <button class="btn-danger" type="button" onclick="execCmd()" style="flex:0 0 80px;">执行</button>
     </div>
     <p class="muted" style="margin:6px 0 0 0;font-size:11px;">
-      命令在街机柜 Windows 上执行；输出写入 Unity Player.log，不回报浏览器。
-      超时 30 秒自动终止。
+      超时三十秒自动丢弃，请确保命令正确且不会阻塞。
     </p>
   </section>
 

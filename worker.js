@@ -771,6 +771,8 @@ pre.log{
       <input id="ovX" type="number" placeholder="X 坐标（可留空）" />
       <input id="ovY" type="number" placeholder="Y 坐标（可留空）" />
     </div>
+    <label class="muted" style="margin-top:8px;">字号（6–256，留空 = segatools.ini 默认）</label>
+    <input id="ovFontSize" type="number" min="6" max="256" step="1" placeholder="默认字号" style="margin-top:4px;" />
     <label class="muted" style="margin-top:8px;">颜色（RGB 0–255，留空 = segatools.ini 默认）</label>
     <div class="grid4" style="margin-top:4px;">
       <input id="ovColor" type="color" value="#ffffff" title="拖动调色板会自动填充右侧 R/G/B" />
@@ -1125,6 +1127,8 @@ function showText() {
   const xRaw = $('#ovX').value, yRaw = $('#ovY').value;
   if (xRaw !== '' && !isNaN(parseInt(xRaw, 10))) obj.x = parseInt(xRaw, 10);
   if (yRaw !== '' && !isNaN(parseInt(yRaw, 10))) obj.y = parseInt(yRaw, 10);
+  const fsi = parseInt($('#ovFontSize').value, 10);
+  if (!isNaN(fsi)) obj.fontSize = Math.max(6, Math.min(256, fsi));
   const ri = parseInt($('#ovR').value, 10);
   const gi = parseInt($('#ovG').value, 10);
   const bi = parseInt($('#ovB').value, 10);

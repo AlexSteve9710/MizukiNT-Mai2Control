@@ -780,6 +780,7 @@ pre.log{
       <input id="ovG" type="number" min="0" max="255" placeholder="G" />
       <input id="ovB" type="number" min="0" max="255" placeholder="B" />
     </div>
+    <label class="muted" style="margin-top:8px;">ShowTextInfoTime</label>
     <div class="row tight" style="margin-top:8px;">
       <input id="textDur" type="number" min="0" step="0.1" value="0" placeholder="默认为0" />
       <button class="btn-primary" type="button" onclick="showText()">显示</button>
@@ -1079,15 +1080,28 @@ function doConnect() {
   s.onerror = () => log('ws error', 'err');
   s.onmessage = (ev) => {
     if (ev.data === '{"type":"pong"}') return;
-    log(ev.data, 'rx');
     try {
       const m = JSON.parse(ev.data);
       if (m.type === 'cabinet') {
         cabinetOnline = !!m.online;
         setConn(cabinetOnline ? '在线(Online)':'离线(Offline)',
           cabinetOnline ? 'green' : 'red');
+        log(ev.data, 'rx');
+      } else if (m.type === 'cmd_output') {
+        log('CMD: ' + m.cmd + ' (exit=' + m.exitCode + ')',
+          m.exitCode === 0 ? 'ok' : 'err');
+        if (m.stdout) {
+          m.stdout.split('\n').forEach(function(l) { log(l, 'rx'); });
+        }
+        if (m.stderr) {
+          m.stderr.split('\n').forEach(function(l) { log(l, 'err'); });
+        }
+      } else {
+        log(ev.data, 'rx');
       }
-    } catch (e) {}
+    } catch (e) {
+      log(ev.data, 'rx');
+    }
   };
 }
 
@@ -1682,6 +1696,11 @@ export class CabinetBroker {
         if (m.type === 'hello')       await this.state.storage.put('lastHello', data);
         else if (m.type === 'status') await this.state.storage.put('lastStatus', data);
         else if (m.type === 'pong')   return;
+        else if (m.type === 'cmd_output') {
+          // 防御性截断：即使 cabinet 侧没限制，Worker 也不会广播超大帧
+          this.broadcastToAdmins(truncateCmdOutput(m));
+          return;
+        }
       } catch (e) {}
       this.broadcastToAdmins(data);
       return;
@@ -1717,6 +1736,22 @@ export class CabinetBroker {
     const s = (typeof payload === 'string') ? payload : JSON.stringify(payload);
     for (const a of this.state.getWebSockets('admin')) safeSend(a, s);
   }
+}
+
+// 防御性截断：与 cabinet 侧 RemoteControlClient.PostCmdOutputAsync 的 maxLen 保持一致
+const MAX_CMD_OUTPUT = 8192;
+function truncateCmdOutput(m) {
+  const trunc = (s, max) => {
+    if (!s || s.length <= max) return s || '';
+    return s.slice(0, max) + '\n...[truncated by Worker, ' + (s.length - max) + ' more bytes]';
+  };
+  return {
+    type: 'cmd_output',
+    cmd: (m.cmd || '').slice(0, 512),    // 命令行本身最长 512 字符
+    stdout: trunc(m.stdout, MAX_CMD_OUTPUT),
+    stderr: trunc(m.stderr, MAX_CMD_OUTPUT),
+    exitCode: typeof m.exitCode === 'number' ? m.exitCode : -1,
+  };
 }
 
 function safeSend(ws, s) {

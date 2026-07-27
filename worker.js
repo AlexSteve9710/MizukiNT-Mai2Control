@@ -1035,6 +1035,7 @@ async function persistCards() {
   } catch (e) { log('保存卡片失败: ' + e.message, 'err'); }
 }
 function renderCards() {
+  log('[DEBUG] renderCards: ' + savedCards.length + ' cards');
   const el = document.getElementById('cardsList');
   if (!el) return;
   el.innerHTML = '';
@@ -1043,21 +1044,30 @@ function renderCards() {
     return;
   }
   savedCards.forEach(function(card, idx) {
-    const row = document.createElement('div');
+    var row = document.createElement('div');
     row.style.cssText = 'display:grid;grid-template-columns:1fr auto auto;gap:6px;margin-bottom:6px;align-items:center;';
-    const info = document.createElement('span');
+    var info = document.createElement('span');
     info.style.cssText = 'font-size:13px;color:#c9d1d9;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;';
     info.textContent = card.name + ' — ' + (card.accessCode || '?');
-    const btnSwipe = document.createElement('button');
+
+    var btnSwipe = document.createElement('button');
     btnSwipe.textContent = '刷卡';
     btnSwipe.className = 'btn-primary';
-    btnSwipe.style.cssText = 'padding:4px 10px;font-size:12px;min-height:auto;white-space:nowrap;';
-    btnSwipe.onclick = function() { cardLogin(card.accessCode, card.name); };
-    const btnDel = document.createElement('button');
+    btnSwipe.style.cssText = 'padding:4px 10px;font-size:12px;min-height:auto;white-space:nowrap;cursor:pointer;';
+    btnSwipe.type = 'button';
+    btnSwipe.addEventListener('click', (function(ac, cn) {
+      return function() { cardLogin(ac, cn); };
+    })(card.accessCode, card.name));
+
+    var btnDel = document.createElement('button');
     btnDel.textContent = '删';
     btnDel.className = 'btn-danger';
-    btnDel.style.cssText = 'padding:4px 8px;font-size:12px;min-height:auto;white-space:nowrap;';
-    btnDel.onclick = function() { deleteCard(idx); };
+    btnDel.style.cssText = 'padding:4px 8px;font-size:12px;min-height:auto;white-space:nowrap;cursor:pointer;';
+    btnDel.type = 'button';
+    btnDel.addEventListener('click', (function(i) {
+      return function() { deleteCard(i); };
+    })(idx));
+
     row.appendChild(info);
     row.appendChild(btnSwipe);
     row.appendChild(btnDel);
@@ -1065,6 +1075,7 @@ function renderCards() {
   });
 }
 function saveCard() {
+  log('[DEBUG] saveCard called');
   const name       = (document.getElementById('cardName')?.value || '').trim();
   const accessCode = (document.getElementById('cardAccessCode')?.value || '').trim();
   if (!name)       { log('请填卡片名称', 'err'); return; }
@@ -1088,7 +1099,9 @@ function deleteCard(idx) {
   persistCards();
 }
 function cardLogin(accessCode, cardName) {
-  if (!ws || ws.readyState !== 1) { log('未连接', 'err'); return; }
+  // 无条件打诊断，确认函数被触发
+  log('[DEBUG] cardLogin called, ws=' + (ws ? ws.readyState : 'null') + ' accessCode=' + (accessCode || '(empty)') + ' cardName=' + (cardName || '(empty)'));
+  if (!ws || ws.readyState !== 1) { log('WS 未连接，无法刷卡。请先连接机台。', 'err'); return; }
   if (!accessCode) { log('卡片信息不完整', 'err'); return; }
   send({ type: 'cmd', cmd: 'CardLogin', accessCode: accessCode, cardName: cardName || '' });
   log('远程刷卡: ' + (cardName || accessCode), 'tx');

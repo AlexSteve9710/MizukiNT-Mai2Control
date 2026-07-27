@@ -761,19 +761,6 @@ pre.log{
     <button type="button" class="btn-danger" onclick="power('PowerOff')
       style="margin-bottom:3px;">关机</button>
   </section>
-  <section class="card">
-    <h2>远程刷卡</h2>
-
-    <label class="muted">已保存卡片（最多 5 张）</label>
-    <div id="cardsList" style="margin-bottom:4px;"></div>
-
-    <label style="margin-top:10px;">新增卡片</label>
-    <div class="grid2" style="margin-top:4px;">
-      <input id="cardName" placeholder="名称（自定义标签）" maxlength="20" autocomplete="off" />
-      <input id="cardAccessCode" placeholder="AccessCode（20位卡号）" maxlength="20" autocomplete="off" inputmode="numeric" />
-    </div>
-    <button class="btn-primary" onclick="saveCard()" style="margin-top:6px;">保存卡片</button>
-  </section>
 
   <section class="card" style="grid-column: 1 / -1;">
     <h2>窗口文字</h2>
@@ -1007,104 +994,6 @@ $_savedListener: {
       manualConnect();
     });
   });
-}
-
-// =============================================================================
-// 卡片列表 (GET/PUT /api/cards)
-// =============================================================================
-let savedCards = [];   // [{name, id}]
-
-async function loadCards() {
-  try {
-    const r = await fetch('/api/cards', { credentials: 'same-origin' });
-    if (r.status === 401) { location.replace('/login?next=/'); return; }
-    if (!r.ok) throw new Error('HTTP ' + r.status);
-    const d = await r.json();
-    savedCards = Array.isArray(d.cards) ? d.cards : [];
-    renderCards();
-  } catch (e) { log('载入卡片失败: ' + e.message, 'err'); }
-}
-async function persistCards() {
-  try {
-    const r = await fetch('/api/cards', {
-      method: 'PUT', credentials: 'same-origin',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ cards: savedCards }),
-    });
-    if (!r.ok) throw new Error('HTTP ' + r.status + ' ' + (await r.text()));
-  } catch (e) { log('保存卡片失败: ' + e.message, 'err'); }
-}
-function renderCards() {
-  log('[DEBUG] renderCards: ' + savedCards.length + ' cards');
-  const el = document.getElementById('cardsList');
-  if (!el) return;
-  el.innerHTML = '';
-  if (savedCards.length === 0) {
-    el.innerHTML = '<span style="color:#6e7681;font-size:12px;">暂无保存的卡片</span>';
-    return;
-  }
-  savedCards.forEach(function(card, idx) {
-    var row = document.createElement('div');
-    row.style.cssText = 'display:grid;grid-template-columns:1fr auto auto;gap:6px;margin-bottom:6px;align-items:center;';
-    var info = document.createElement('span');
-    info.style.cssText = 'font-size:13px;color:#c9d1d9;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;';
-    info.textContent = card.name + ' — ' + (card.accessCode || '?');
-
-    var btnSwipe = document.createElement('button');
-    btnSwipe.textContent = '刷卡';
-    btnSwipe.className = 'btn-primary';
-    btnSwipe.style.cssText = 'padding:4px 10px;font-size:12px;min-height:auto;white-space:nowrap;cursor:pointer;';
-    btnSwipe.type = 'button';
-    btnSwipe.addEventListener('click', (function(ac, cn) {
-      return function() { cardLogin(ac, cn); };
-    })(card.accessCode, card.name));
-
-    var btnDel = document.createElement('button');
-    btnDel.textContent = '删';
-    btnDel.className = 'btn-danger';
-    btnDel.style.cssText = 'padding:4px 8px;font-size:12px;min-height:auto;white-space:nowrap;cursor:pointer;';
-    btnDel.type = 'button';
-    btnDel.addEventListener('click', (function(i) {
-      return function() { deleteCard(i); };
-    })(idx));
-
-    row.appendChild(info);
-    row.appendChild(btnSwipe);
-    row.appendChild(btnDel);
-    el.appendChild(row);
-  });
-}
-function saveCard() {
-  log('[DEBUG] saveCard called');
-  const name       = (document.getElementById('cardName')?.value || '').trim();
-  const accessCode = (document.getElementById('cardAccessCode')?.value || '').trim();
-  if (!name)       { log('请填卡片名称', 'err'); return; }
-  if (!accessCode) { log('请填 AccessCode（20 位卡号）', 'err'); return; }
-  if (!/^\d{1,20}$/.test(accessCode)) { log('AccessCode 必须是纯数字', 'err'); return; }
-  if (savedCards.length >= 5) { log('最多保存 5 张卡片', 'err'); return; }
-  if (savedCards.some(function(c) { return c.accessCode === accessCode; })) { log('这张卡已经在列表里了', 'err'); return; }
-  savedCards.push({ name: name.slice(0, 20), accessCode: accessCode });
-  renderCards();
-  persistCards();
-  document.getElementById('cardName').value = '';
-  document.getElementById('cardAccessCode').value = '';
-  log('卡片已保存: ' + name, 'ok');
-}
-function deleteCard(idx) {
-  if (idx < 0 || idx >= savedCards.length) return;
-  const card = savedCards[idx];
-  if (!confirm('删除卡片「' + card.name + '」？')) return;
-  savedCards.splice(idx, 1);
-  renderCards();
-  persistCards();
-}
-function cardLogin(accessCode, cardName) {
-  // 无条件打诊断，确认函数被触发
-  log('[DEBUG] cardLogin called, ws=' + (ws ? ws.readyState : 'null') + ' accessCode=' + (accessCode || '(empty)') + ' cardName=' + (cardName || '(empty)'));
-  if (!ws || ws.readyState !== 1) { log('WS 未连接，无法刷卡。请先连接机台。', 'err'); return; }
-  if (!accessCode) { log('卡片信息不完整', 'err'); return; }
-  send({ type: 'cmd', cmd: 'CardLogin', accessCode: accessCode, cardName: cardName || '' });
-  log('远程刷卡: ' + (cardName || accessCode), 'tx');
 }
 
 // =============================================================================
@@ -1391,8 +1280,6 @@ async function init() {
   // 3) 已保存的 cabinet 列表
   await loadCabinets();
 
-  // 3b) 已保存的卡片列表
-  await loadCards();
 
   // 4) 颜色同步
   $('#ovColor').addEventListener('input', syncColorFromPicker);
@@ -1591,9 +1478,6 @@ export default {
     if (path === '/api/cabinets') {
       return handleCabinets(request, env, method);
     }
-    if (path === '/api/cards') {
-      return handleCards(request, env, method);
-    }
 
     // ---------- 控制台主页（必须登录）----------
     if (path === '/' || path === '/index.html') {
@@ -1729,37 +1613,6 @@ async function handleCabinets(request, env, method) {
   }
 }
 
-async function handleCards(request, env, method) {
-  const sess = await requireSession(env, request);
-  if (!sess) return jsonRes({ ok: false, err: 'unauthorized' }, 401);
-  const user = await loadUser(env, sess.username);
-  if (!user) return jsonRes({ ok: false, err: 'user_gone' }, 410);
-
-  if (method === 'GET') {
-    return jsonRes({ ok: true, cards: user.cards || [] });
-  }
-  if (method === 'PUT') {
-    let body;
-    try { body = await request.json(); }
-    catch (e) { return jsonRes({ ok: false, err: 'bad_json' }, 400); }
-    const arr = body && Array.isArray(body.cards) ? body.cards : null;
-    if (!arr) return jsonRes({ ok: false, err: 'expect_cards_array' }, 400);
-    if (arr.length > 5) return jsonRes({ ok: false, err: 'max_5_cards' }, 400);
-    const cleaned = [];
-    for (const item of arr) {
-      if (!item || typeof item !== 'object') continue;
-      const name       = typeof item.name       === 'string' ? item.name.trim().slice(0, 20)       : '';
-      const accessCode = typeof item.accessCode === 'string' ? item.accessCode.trim().slice(0, 20) : '';
-      if (!name || !accessCode) continue;
-      if (!/^\d{1,20}$/.test(accessCode)) continue;
-      cleaned.push({ name, accessCode });
-    }
-    user.cards = cleaned;
-    await saveUser(env, sess.username, user);
-    return jsonRes({ ok: true, cards: cleaned });
-  }
-  return jsonRes({ ok: false, err: 'method_not_allowed' }, 405);
-}
 
 // ============================================================================
 // 兼容多种 cabinet URL 写法（原样保留）
